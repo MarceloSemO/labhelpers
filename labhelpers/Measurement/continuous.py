@@ -23,6 +23,7 @@ def measure(timestep_s, meas_time_s, record_functions, headers, countdown_s=0, o
         f.close()
 
 
+# TODO: replace with general funciton from utils
 def _init_file(outfile, headers):
     if outfile is None:
         return None
