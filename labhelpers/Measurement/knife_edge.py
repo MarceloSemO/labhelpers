@@ -22,7 +22,7 @@ def measure(step_mm, meas_func, zero_adjust_func, init_pos_mm=0.0, outfile=None)
         except ValueError:
             if user_input == '':
                 meas_power_mW_str = meas_func
-                print("Measured", meas_power_mW_str, " mW.")
+                print("Measured", meas_power_mW_str, " W.")
                 if f_out is not None:
                     f_out.write("{}\t{:.5e}\n".format(curr_pos_mm_str, meas_power_mW_str))
                 curr_pos_mm += step_mm
