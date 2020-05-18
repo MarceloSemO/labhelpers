@@ -9,7 +9,7 @@ def measure(step_mm, meas_func, zero_adjust_func, init_pos_mm=0.0, outfile=None)
     while True:
         curr_pos_mm_str = "{:.2f}".format(curr_pos_mm)
         user_input = input("------------------------------------------\n"
-                           "Next measurement at {} mm.\nPress 'Enter' to take next measurement. Enter 'q' and "
+                           "Next measurement at {} mm.\nEnter 'n' and press 'Enter' to take next measurement. Enter 'q' and "
                            "press 'Enter' to finish measurement. Enter a number and press 'Enter' to set a new "
                            "step size. Enter 'del' and press 'Enter' to delete last measurement. \n"
                            .format(curr_pos_mm_str))
@@ -20,11 +20,11 @@ def measure(step_mm, meas_func, zero_adjust_func, init_pos_mm=0.0, outfile=None)
             print("Changed step size to ", round(step_mm, 2), "mm.")
             continue
         except ValueError:
-            if user_input == '':
-                meas_power_mW_str = meas_func
-                print("Measured", meas_power_mW_str, " W.")
+            if user_input.lower() == 'n':
+                meas_power = meas_func()
+                print("Measured {:.5e} W.".format(meas_power))
                 if f_out is not None:
-                    f_out.write("{}\t{:.5e}\n".format(curr_pos_mm_str, meas_power_mW_str))
+                    f_out.write("{}\t{:.5e}\n".format(curr_pos_mm_str, meas_power))
                 curr_pos_mm += step_mm
             elif user_input.lower() == 'q':
                 if f_out is not None:
