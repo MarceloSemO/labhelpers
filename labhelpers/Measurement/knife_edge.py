@@ -3,7 +3,7 @@ from labhelpers.Measurement.utils import init_file
 
 def measure(step_mm, meas_func, zero_adjust_func, init_pos_mm=0.0, outfile=None):
     _adjust_zero(zero_adjust_func)
-    f_out = init_file(outfile, ['Position (mm)', 'Power(W)'])
+    f_out = init_file(outfile, ['Position (mm)', 'Power (W)'])
 
     curr_pos_mm = init_pos_mm
     while True:
@@ -24,7 +24,7 @@ def measure(step_mm, meas_func, zero_adjust_func, init_pos_mm=0.0, outfile=None)
                 meas_power = meas_func()
                 print("Measured {:.5e} W.".format(meas_power))
                 if f_out is not None:
-                    f_out.write("{}\t{:.5e}\n".format(curr_pos_mm_str, meas_power))
+                    f_out.write("{}, {:.5e}\n".format(curr_pos_mm_str, meas_power))
                 curr_pos_mm += step_mm
             elif user_input.lower() == 'q':
                 if f_out is not None:
