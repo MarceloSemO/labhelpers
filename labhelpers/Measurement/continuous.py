@@ -2,8 +2,8 @@ import time
 import numpy as np
 
 
-def measure(timestep_s, meas_time_s, record_functions, headers, countdown_s=0, outfile=None):
-    f = _init_file(outfile, headers)
+def measure(timestep_s, meas_time_s, record_functions, headers, countdown_s=0, add_timestamp=False, outfile=None):
+    f = _init_file(outfile, headers, add_timestamp)
     if countdown_s > 0:
         _start_countdown(countdown_s)
     start_s = time.time()
@@ -16,7 +16,8 @@ def measure(timestep_s, meas_time_s, record_functions, headers, countdown_s=0, o
         values = _do_measurement(time_elapsed_s, record_functions)
         _print_values(values, f)
         single_meas_time_s = (time.time_ns() - start_single_meas_ns) * 1e-9
-        time.sleep(timestep_s - single_meas_time_s)
+        if single_meas_time_s < timestep_s:
+            time.sleep(timestep_s - single_meas_time_s)
         time_elapsed_s = time.time() - start_s
     print('Measurement finished')
     if f is not None:
@@ -24,10 +25,12 @@ def measure(timestep_s, meas_time_s, record_functions, headers, countdown_s=0, o
 
 
 # TODO: replace with general funciton from utils
-def _init_file(outfile, headers):
+def _init_file(outfile, headers, add_timestamp):
     if outfile is None:
         return None
     f = open(outfile, 'w+', buffering=1)
+    if add_timestamp:
+        f.write(time.asctime() + "\n")
     f.write("Time (s), {}\n".format(', '.join(headers)))
     return f
 
