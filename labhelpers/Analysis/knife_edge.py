@@ -12,7 +12,7 @@ from labhelpers.Analysis.plot import create_fig
 # TODO: also allow function for power and position error
 def evaluate(infile, outfile='', pos_err_mm=0.005, reverse=True):
     # acquire data
-    pos_mm, pow_W = file_to_arrs(infile, 'Position_mm', 'Power_W')
+    pos_mm, pow_W = file_to_arrs(infile, ['Position_mm', 'Power_W'])
     pow_err_W = np.full_like(pow_W, 1e-4)
 
     # perform fit

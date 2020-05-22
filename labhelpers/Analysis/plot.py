@@ -3,7 +3,7 @@ from labhelpers.Analysis.data_management import file_to_arrs
 
 
 def plot_from_file(infile, name_x, name_y, y_filter_func=None, label_x=None, label_y=None, genfromtxt_args=None, plot_args=None):
-    x, y = file_to_arrs(infile, name_x, name_y, y_filter_func, genfromtxt_args)
+    x, y = file_to_arrs(infile, [name_x, name_y], y_filter_func, genfromtxt_args)
 
     if label_x is None:
         label_x = name_x

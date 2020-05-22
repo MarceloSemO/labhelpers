@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def file_to_arrs(infile, name_x, name_y, y_filter_func=None, genfromtxt_args=None):
+def file_to_arrs(infile, names, y_filter_func=None, genfromtxt_args=None):
     genfromtxt_args_default = {'delimiter': ',',
                                'names': True}
     if genfromtxt_args is not None:
@@ -10,15 +10,18 @@ def file_to_arrs(infile, name_x, name_y, y_filter_func=None, genfromtxt_args=Non
     f = open(infile, 'r')
     data = np.genfromtxt(f, **genfromtxt_args_default)
     f.close()
-    x, y = _data_to_arrs(data, name_x, name_y)
-    return _filter_data(x, y, y_filter_func)
+    if len(names) == 2:
+        x, y = _data_to_arrs(data, names)
+        return _filter_data(x, y, y_filter_func)
+    else:
+        return _data_to_arrs(data, names)
 
-
-def _data_to_arrs(data, name_x, name_y):
+def _data_to_arrs(data, names):
     try:
-        x = data[name_x]
-        y = data[name_y]
-        return x, y
+        variables = []
+        for name in names:
+            variables.append(data[name])
+        return variables
     except ValueError as err:
         print('Existing fields names are:', data.dtype.names)
         raise err
