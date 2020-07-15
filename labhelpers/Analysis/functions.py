@@ -13,7 +13,7 @@ def gauss_int(x, max_val, min_val, x0, w, reverse):
 # calculates 2-dimensional Gaussian
 def gauss2d(xy, x0, y0, sigma_x, sigma_y, amp, offset):
     (x, y) = xy
-    x, y = np.meshgrid(x, y)
+    #x, y = np.meshgrid(x, y)
     return amp * np.exp(- 2 * ((x-x0) ** 2 / (sigma_x ** 2) + (y-y0) ** 2 / sigma_y ** 2)) + offset
 
 
