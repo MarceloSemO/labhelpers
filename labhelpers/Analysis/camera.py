@@ -34,9 +34,36 @@ def guess_sigma(img, axis, max_pos=None):
         raise ValueError("Axis must be either 'x' or 'y'.")
 
 
+def create_figure(img_scaled, popt):
+    gridsize = 4
+
+    (x0, y0, sigma_x, sigma_y) = popt[:4]
+    fig = plt.figure()
+    ax_2d = plt.subplot2grid((gridsize, gridsize), (0, 1), rowspan=gridsize - 1, colspan=gridsize - 1)
+    ax_v = plt.subplot2grid((gridsize, gridsize), (0, 0), rowspan=gridsize - 1, colspan=1)
+    ax_h = plt.subplot2grid((gridsize, gridsize), (gridsize - 1, 1), rowspan=1, colspan=gridsize - 1)
+    ax_2d.imshow(img_scaled)
+    ax_2d.set_xlabel('Horizontal pixel number')
+    ax_2d.set_ylabel('Vertical pixel number')
+
+    phi = np.linspace(0, 2 * np.pi)
+    x = x0 + sigma_x * np.cos(phi)
+    y = y0 + sigma_y * np.sin(phi)
+    ax_2d.plot(x, y)
+
+    ax_2d.axvline(x0, c='red')
+    ax_2d.axhline(y0, c='red')
+    img_size_y = np.size(img_scaled[:, 0])
+    ax_v.invert_yaxis()
+    ax_v.set_xlim(0, 1)
+    ax_v.plot(img_scaled[:, int(round(x0))], np.linspace(0, img_size_y - 1, num=img_size_y))
+    ax_h.plot(img_scaled[int(round(y0)), :])
+    return fig
+
+
 # fit 2D Gaussian to Greyscale png
 # 'img' must be a matrix or a string specifying the filename
-def fit_gauss_2d(img):
+def fit_gauss_2d(img, plot=True):
     if type(img) == str:
         img = str_to_img(img)
     xy_mesh = make_grid(img)
@@ -45,4 +72,6 @@ def fit_gauss_2d(img):
     p0 = (max_pos[1], max_pos[0], guess_sigma(img, "x", max_pos), guess_sigma(img, "y", max_pos), 1, 0)
     img_scaled = img/img.max()
     popt, pcov = opt.curve_fit(gauss2d_flat, xy_mesh, img_scaled.ravel(), p0=p0)
-    return popt
+    if not plot:
+        return popt
+    return popt, create_figure(img_scaled, popt)
