@@ -5,7 +5,11 @@ from labhelpers.Analysis.functions import gauss2d_flat
 
 
 def str_to_img(im_str):
-    return plt.imread(im_str)[:, :, 0]
+    img = plt.imread(im_str)
+    if img.ndim == 3:
+        return img[:, :, 0]
+    else:
+        return img
 
 
 def make_grid(img):
