@@ -1,0 +1,5 @@
+DATA:
+Time (s), Voltage (V)
+1,  1.0
+2,  1.5
+3,  2.0
