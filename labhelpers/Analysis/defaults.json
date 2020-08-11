@@ -1,0 +1,16 @@
+{
+  "plot_args_errorbar":
+    {"color": "blue",
+      "marker": ".",
+      "ls": "",
+      "capsize": 3},
+  "plot_args_line":
+  {"color": "blue",
+    "ls": "-"
+  },
+  "matplotlib_params":
+  {
+    "font.family": "sans-serif",
+    "font.sans-serif":["Helvetica"]
+  }
+}
