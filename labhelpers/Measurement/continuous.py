@@ -43,7 +43,8 @@ def _init_file(outfile, headers, add_timestamp):
         return None
     f = open(outfile, 'w+', buffering=1)
     if add_timestamp:
-        f.write(time.asctime() + "\n")
+        f.write(f"TIME: {time.asctime()}\n")
+    f.write("DATA:\n")
     f.write("Time (s), {}\n".format(', '.join(headers)))
     return f
 
