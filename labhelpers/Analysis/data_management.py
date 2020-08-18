@@ -10,7 +10,11 @@ def file_to_arrs(infile, names, y_filter_func=None, genfromtxt_args=None):
 
     f = open(infile, 'r')
     header = _get_header(f)
-    data = np.genfromtxt(f, **genfromtxt_args_default)
+    try:
+        data = np.genfromtxt(f, **genfromtxt_args_default)
+    except ValueError as err:
+        print(f"Error while reading file {infile}")
+        raise err
     f.close()
     if len(names) == 2:
         x, y = _data_to_arrs(data, names)
