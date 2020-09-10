@@ -3,6 +3,10 @@ import numpy as np
 
 class Measurement:
     @staticmethod
+    def measure(self, func):
+        return self.measure_n(1, func)
+
+    @staticmethod
     def measure_n(n: int, func):
         if type(n) != int:
             raise TypeError("Number of measurements must be integer value.")
