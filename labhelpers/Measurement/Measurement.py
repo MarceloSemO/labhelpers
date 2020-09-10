@@ -9,7 +9,7 @@ class Measurement:
         if n < 1:
             raise ValueError("Number of measurements must be 1 or larger.")
         if n == 1:
-            return np.array([func()])
+            return func()
         else:
             vals = np.zeros(n)
             for i in range(n):
