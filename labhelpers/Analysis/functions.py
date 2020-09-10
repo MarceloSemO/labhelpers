@@ -32,6 +32,11 @@ def lin(x, m, n):
     return m * x + n
 
 
+# sinc function
+def sinc2(x, x0, a, b, y0):
+    return a * (np.sinc(b * np.pi * (x-x0))) ** 2 + y0
+
+
 def beam_radius(z_mm, w0_mm, z0_mm, wvl_um, m):
     zr = np.pi * w0_mm ** 2 / (m ** 2 * wvl_um * 1e-3)
     return w0_mm * np.sqrt(1 + (z_mm - z0_mm) ** 2 / zr ** 2)
