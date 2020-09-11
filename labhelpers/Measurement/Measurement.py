@@ -2,6 +2,11 @@ import numpy as np
 
 
 class Measurement:
+
+    @staticmethod
+    def measure(func):
+        return measure_n(1, func)
+
     @staticmethod
     def measure_n(n: int, func):
         if type(n) != int:
