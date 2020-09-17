@@ -6,12 +6,13 @@ import os.path
 
 from labhelpers.Analysis.data_management import file_to_arrs
 
-if not matplotlib.rcParams['text.usetex']:
-    matplotlib.rcParams['text.usetex'] = True
-    f = open(os.path.join(os.path.dirname(__file__), 'defaults.json'))
-    matplotlib.rcParams.update(json.load(f)["matplotlib_params"])
-    matplotlib.rcParams['text.latex.preamble'] = [r'\usepackage[cm]{sfmath}']
-    f.close()
+def configure_matplotlib():
+    if not matplotlib.rcParams['text.usetex']:
+        matplotlib.rcParams['text.usetex'] = True
+        f = open(os.path.join(os.path.dirname(__file__), 'defaults.json'))
+        matplotlib.rcParams.update(json.load(f)["matplotlib_params"])
+        matplotlib.rcParams['text.latex.preamble'] = [r'\usepackage[cm]{sfmath}']
+        f.close()
 
 
 def plot_from_file(infile, name_x, name_y, y_filter_func=None, label_x=None, label_y=None, genfromtxt_args=None,
@@ -27,6 +28,7 @@ def plot_from_file(infile, name_x, name_y, y_filter_func=None, label_x=None, lab
 
 
 def create_fig(x, y, label_x, label_y, xerr=None, yerr=None, plot_args=None):
+    configure_matplotlib()
     f = open(os.path.join(os.path.dirname(__file__), 'defaults.json'))
     if callable(y):
         plot_args_default = json.load(f)['plot_args_line']

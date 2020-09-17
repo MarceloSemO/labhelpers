@@ -1,5 +1,8 @@
 import numpy as np
 from scipy.special import erf
+import pint
+
+ureg = pint.UnitRegistry()
 
 
 # calculates the integrated Gaussian distribution
@@ -34,9 +37,23 @@ def lin(x, m, n):
 
 # sinc function
 def sinc2(x, x0, a, b, y0):
-    return a * (np.sinc(b * np.pi * (x-x0))) ** 2 + y0
+    return a * (np.sinc(b / np.pi * (x-x0))) ** 2 + y0
 
 
+# calcualte beam radius of Gaussian beam
 def beam_radius(z_mm, w0_mm, z0_mm, wvl_um, m):
     zr = np.pi * w0_mm ** 2 / (m ** 2 * wvl_um * 1e-3)
     return w0_mm * np.sqrt(1 + (z_mm - z0_mm) ** 2 / zr ** 2)
+
+
+# calculate temperature for given resistance of NTC thermistor (B-parameter equation)
+def b_param_eq(r, t_0, r_0, b):
+    if hasattr(t_0, 'magnitude'):
+        return 1 / ((1 / t_0.to(ureg.kelvin)) + 1/b * np.log(r/r_0))
+    else:
+        return 1 / ((1 / (t_0 + 273.15)) + 1/b * np.log(r/r_0)) - 273.15
+
+def b_param_eq_err(r, t_0, r_0, b, r_err=0, t_0_err=0, r_0_err=0, b_err=0, err_in='rel', err_out='abs'):
+    t = b_param_eq(r, t_0, r_0, b)
+    if err_in == 'rel':
+        return np.sqrt(() ** 2 + () ** 2 + () ** 2 + () ** 2)
