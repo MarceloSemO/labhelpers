@@ -3,17 +3,19 @@ import matplotlib.pyplot as plt
 from lmfit import Model
 
 from labhelpers.Analysis.functions import gauss_int
+from labhelpers.Analysis.functions import beam_radius
 from labhelpers.Analysis.data_management import file_to_arrs
 from labhelpers.Utils.display import get_result_string
 from labhelpers.Analysis.plot import create_fig
 
 
 # evaluate data of knife edge measurement
-# TODO: also allow function for power and position error
-def evaluate(infile, outfile='', pos_err_mm=0.005, reverse=True):
+def evaluate(infile, pos_err_func, pow_err_func, outfile='', reverse=True):
     # acquire data
     pos_mm, pow_W = file_to_arrs(infile, ['Position_mm', 'Power_W'])
-    pow_err_W = np.full_like(pow_W, 1e-4)
+
+    pos_err_mm = pos_err_func(pos_mm)
+    pow_err_W = pow_err_func(pow_W)
 
     # perform fit
     result = _fit(pos_mm, pow_W, pow_err_W, reverse)
@@ -44,19 +46,43 @@ def evaluate(infile, outfile='', pos_err_mm=0.005, reverse=True):
     plt.show()
     plt.close()
 
+    return result.best_values['w'], result.params['w'].stderr
+
+
+def fit_z_profile(pos_mm, w_mm, w_err_mm, wvl_um, m=None):
+    # set up model
+    beam_model = Model(beam_radius, independent_vars=['z_mm'])
+    params = beam_model.make_params(z0_mm=0,
+                                    w0_mm=min(w_mm)/100,
+                                    wvl_um=wvl_um,
+                                    m=1
+                                    )
+    params['wvl_um'].set(vary=False)
+
+    if m is None:
+        # (Rayleigh range and waist independent)
+        params['m'].set(min=1)
+    else:
+        # (Rayleigh range calculated from waist, assuming M = 1)
+        params['m'].set(vary=False)
+    result = beam_model.fit(w_mm, params, z_mm=pos_mm, weights=1/w_err_mm, scale_covar=False)
+    print(result.fit_report())
+    return result
+
 
 def _fit(pos_mm, pow_W, pow_err_W, reverse):
     # set up model
     gauss_int_model = Model(gauss_int)
-    params = gauss_int_model.make_params(max_val=max(pow_W),
+    params = gauss_int_model.make_params(max_val=max(pow_W) * 0.8,
                                          min_val=min(pow_W),
                                          x0=(max(pos_mm) + min(pos_mm)) / 2,
-                                         w=(max(pos_mm) + min(pos_mm)) / 4,
+                                         w=(max(pos_mm) - min(pos_mm)) / 100,
                                          reverse=reverse)
     params['w'].set(min=0)
     params['reverse'].set(vary=False)
-
+    #params['max_val'].set(vary=False)
+    #params['min_val'].set(vary=False)
     # fit function to data
-    result = gauss_int_model.fit(pow_W, params, x=pos_mm, weights=1/pow_err_W, scale_covar=False)
+    result = gauss_int_model.fit(pow_W, params, x=pos_mm, weights=1 / pow_err_W, scale_covar=False)
     print(result.fit_report())
     return result
