@@ -36,12 +36,12 @@ def _get_fw_at_nth_of_max(x: np.ndarray,
     ix_lower = ix_max
     ix_upper = ix_max
     for i in range(ix_max, -1, -1):
-        if y[i] < ymax / n:
+        if y[i] < ymax / n or i == 0:
             ix_lower = i
             break
     size = np.size(y)
     for i in range(ix_max, size):
-        if y[i] < ymax / n:
+        if y[i] < ymax / n or i == size-1:
             ix_upper = i
             break
     if return_ix:

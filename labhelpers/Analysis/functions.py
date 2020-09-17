@@ -46,25 +46,38 @@ def beam_radius(z_mm, w0_mm, z0_mm, wvl_um, m):
     return w0_mm * np.sqrt(1 + (z_mm - z0_mm) ** 2 / zr ** 2)
 
 
+def sinc2_root(x, x0, a, b, y0):
+    return a * (np.sin(b * np.sqrt(x-x0))) ** 2 + y0
+
 # calculate temperature for given resistance of NTC thermistor (B-parameter equation)
-def b_param_eq(r, t_0, r_0, b):
+def b_param_eq(r, t_0, r_0, b, temp_unit='celsius'):
     if hasattr(t_0, 'magnitude'):
         return 1 / ((1 / t_0.to(ureg.kelvin)) + 1/b * np.log(r/r_0))
     else:
-        return 1 / ((1 / (t_0 + 273.15)) + 1/b * np.log(r/r_0)) - 273.15
+        if temp_unit == 'celsius':
+            return 1 / ((1 / (t_0 + 273.15)) + 1/b * np.log(r/r_0)) - 273.15
+        elif temp_unit == 'kelvin':
+            return 1 / ((1 / t_0) + 1 / b * np.log(r / r_0))
+        else:
+            raise ValueError("Parameter temp_unit must be either 'celsius' or 'kelvin'.")
 
 
-def b_param_eq_err(r, t_0, r_0, b, r_err=0, t_0_err=0, r_0_err=0, b_err=0, err_in='rel', err_out='abs'):
-    t = b_param_eq(r, t_0, r_0, b)
+def b_param_eq_err(r, t_0, r_0, b, r_err=0, t_0_err=0, r_0_err=0, b_err=0, err_in='rel', temp_unit='celsius'):
+    t = b_param_eq(r, t_0, r_0, b, temp_unit)
+    # change quantities to Kelvin, if necessary
+    if hasattr(t_0, 'magnitude'):
+        t = t.to(ureg.kelvin)
+        t_0 = t_0.to(ureg.kelvin)
+    elif temp_unit == 'celsius':
+        t += 273.15
+        t_0 += 273.15
+    # calculate relative errors, if absolute errors are given
     if err_in == 'abs':
-        r_err /= r_err
+        r_err /= r
         t_0_err /= t_0
         r_0_err /= r_0
         b_err /= b
     elif err_in != 'rel':
         raise ValueError("Parameter err_in must be either 'rel' or 'abs'.")
-    t_err = t * np.sqrt((t/t_0 * t_0_err) ** 2 + ((t-t_0)/t_0 * b_err) ** 2 + (t/b * r_0_err) ** 2 + (t/b * r_err) ** 2)
-    if err_out == 'abs':
-        return t_err * t
-    else:
-        return t_err
+    # calculate temperature error
+    return t * np.sqrt((t/t_0 * t_0_err) ** 2 + ((t-t_0)/t_0 * b_err) ** 2 + (t/b * r_0_err) ** 2 + (t/b * r_err) ** 2)
