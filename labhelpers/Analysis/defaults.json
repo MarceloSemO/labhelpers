@@ -1,9 +1,9 @@
 {
   "plot_args_errorbar":
-    {"color": "blue",
+    {"color": "#1f77b4",
       "marker": ".",
-      "ls": "",
-      "capsize": 3},
+      "ms": "4",
+      "ls": ""},
   "plot_args_line":
   {"color": "blue",
     "ls": "-"

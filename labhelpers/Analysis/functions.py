@@ -53,7 +53,18 @@ def b_param_eq(r, t_0, r_0, b):
     else:
         return 1 / ((1 / (t_0 + 273.15)) + 1/b * np.log(r/r_0)) - 273.15
 
+
 def b_param_eq_err(r, t_0, r_0, b, r_err=0, t_0_err=0, r_0_err=0, b_err=0, err_in='rel', err_out='abs'):
     t = b_param_eq(r, t_0, r_0, b)
-    if err_in == 'rel':
-        return np.sqrt(() ** 2 + () ** 2 + () ** 2 + () ** 2)
+    if err_in == 'abs':
+        r_err /= r_err
+        t_0_err /= t_0
+        r_0_err /= r_0
+        b_err /= b
+    elif err_in != 'rel':
+        raise ValueError("Parameter err_in must be either 'rel' or 'abs'.")
+    t_err = t * np.sqrt((t/t_0 * t_0_err) ** 2 + ((t-t_0)/t_0 * b_err) ** 2 + (t/b * r_0_err) ** 2 + (t/b * r_err) ** 2)
+    if err_out == 'abs':
+        return t_err * t
+    else:
+        return t_err
