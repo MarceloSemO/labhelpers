@@ -1,12 +1,15 @@
 from lmfit import Model
 import numpy as np
-from typing import Union
+from typing import Union, Tuple
 import warnings
 
 from labhelpers.Analysis.functions import sinc2
 
 
-def _get_fw_at_nth_of_max(x: np.ndarray, y: np.ndarray, n: Union[float, int]) -> float:
+def _get_fw_at_nth_of_max(x: np.ndarray,
+                          y: np.ndarray,
+                          n: Union[float, int],
+                          return_ix: bool = False) -> Union[float, Tuple[int, int]]:
     """
     Calculates an estimator for the full width at 1/n of maximum of given distribution.
     :param x: 1 dimensional numpy array with values of independent variable.
@@ -41,31 +44,42 @@ def _get_fw_at_nth_of_max(x: np.ndarray, y: np.ndarray, n: Union[float, int]) ->
         if y[i] < ymax / n:
             ix_upper = i
             break
-    return x[ix_upper] - x[ix_lower]
+    if return_ix:
+        return ix_lower, ix_upper
+    else:
+        return x[ix_upper] - x[ix_lower]
 
 
-def _get_fwhm(x: np.ndarray, y: np.ndarray) -> float:
+def _get_fwhm(x: np.ndarray, y: np.ndarray, return_ix: bool = False) -> Union[float, Tuple[int, int]]:
     """
     Calculates an estimator for the FWHM of a given distribution
     :param x: Independent variable.
     :param y: Dependent variable.
     :return: Estimator for FWHM.
     """
-    return _get_fw_at_nth_of_max(x, y, 2)
+    return _get_fw_at_nth_of_max(x, y, 2, return_ix)
 
 
 class Sinc2Model(Model):
     def __init__(self, x, y):
         super().__init__(sinc2)
         fwhm_factor = 2 * 1.37677  # 1.37677: positive solution to the equation (sin(x)/x)^2 = 1/2
-        self.params = self.make_params(x0=x[np.argmax(y)],
-                                       a=np.max(y) - np.min(y),
-                                       b=fwhm_factor / _get_fwhm(x, y),
-                                       y0=np.min(y))
+        self.fwhm_ix = _get_fwhm(x, y, return_ix=True)
+        self.init_guess = {'x0': x[np.argmax(y)],
+                           'a': np.max(y) - np.min(y),
+                           'b': fwhm_factor / _get_fwhm(x, y),
+                           'y0': np.min(y)}
+        self.params = self.make_params(**self.init_guess)
         self._fit = self.fit
         self.x = x
         self.y = y
 
-    def do_fit(self):
-        self.params['x0'].set(min=np.min(self.x), max=np.max(self.x))
-        return self.fit(self.y, self.params, x=self.x)
+    def do_fit(self, data_range: Tuple[int, int] = None):
+        if data_range is None:
+            x = self.x
+            y = self.y
+        else:
+            x = self.x[data_range[0]:data_range[1]]
+            y = self.y[data_range[0]:data_range[1]]
+        self.params['x0'].set(min=np.min(x), max=np.max(x))
+        return self.fit(y, self.params, x=x)
