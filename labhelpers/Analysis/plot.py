@@ -27,14 +27,20 @@ def plot_from_file(infile, name_x, name_y, y_filter_func=None, label_x=None, lab
     return create_fig(x, y, label_x, label_y, plot_args)
 
 
+def open_defaults():
+    f = open(os.path.join(os.path.dirname(__file__), 'defaults.json'))
+    defaults = json.load(f)
+    f.close()
+    return defaults
+
+
 def create_fig(x, y, label_x, label_y, xerr=None, yerr=None, plot_args=None):
     configure_matplotlib()
-    f = open(os.path.join(os.path.dirname(__file__), 'defaults.json'))
+    defaults = open_defaults()
     if callable(y):
-        plot_args_default = json.load(f)['plot_args_line']
+        plot_args_default = defaults['plot_args_line']
     else:
-        plot_args_default = json.load(f)['plot_args_errorbar']
-    f.close()
+        plot_args_default = defaults['plot_args_errorbar']
 
     fig, ax = plt.subplots()
 

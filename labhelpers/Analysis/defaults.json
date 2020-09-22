@@ -5,8 +5,13 @@
       "ms": "4",
       "ls": ""},
   "plot_args_line":
-  {"color": "blue",
-    "ls": "-"
+  {"color": "#1f77b4",
+    "ls": "--"
+  },
+  "plot_args_fit":
+  {
+    "color": "coral",
+    "ls": "--"
   },
   "matplotlib_params":
   {
