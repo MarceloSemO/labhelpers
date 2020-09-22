@@ -1,11 +1,11 @@
 {
   "plot_args_errorbar":
-    {"color": "#1f77b4",
+    {"color": ["#1f77b4", "indianred", "darkseagreen", "goldenrod", "mediumorchid"],
       "marker": ".",
       "ms": "4",
       "ls": ""},
   "plot_args_line":
-  {"color": "#1f77b4",
+  {"color": ["#1f77b4", "indianred", "darkseagreen", "goldenrod", "mediumorchid"],
     "ls": "--"
   },
   "plot_args_fit":

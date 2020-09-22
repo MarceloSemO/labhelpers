@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 import os.path
+from typing import Union, List
 
 from labhelpers.Analysis.data_management import file_to_arrs
 
@@ -15,16 +16,25 @@ def configure_matplotlib():
         f.close()
 
 
-def plot_from_file(infile, name_x, name_y, y_filter_func=None, label_x=None, label_y=None, genfromtxt_args=None,
-                   plot_args=None):
-    x, y = file_to_arrs(infile, [name_x, name_y], y_filter_func, genfromtxt_args)
+def plot_from_file(infile, name_x: str, name_y: Union[str, List[str]],
+                   y_filter_func=None, label_x=None, label_y=None,
+                   genfromtxt_args=None, plot_args=None):
+    if type(name_y) == list:
+        names = [name_x, *name_y]
+        _, (x, *y) = file_to_arrs(infile, names, y_filter_func, genfromtxt_args)
+    else:
+        names = [name_x, name_y]
+        _, (x, y) = file_to_arrs(infile, names, y_filter_func, genfromtxt_args)
+
 
     if label_x is None:
         label_x = name_x
     if label_y is None:
-        label_y = name_y
+        if type(name_y) == str:
+            label_y = name_y
+        else: label_y = ""
 
-    return create_fig(x, y, label_x, label_y, plot_args)
+    return create_fig(x, y, label_x, label_y, plot_args=plot_args)
 
 
 def open_defaults():
@@ -47,13 +57,24 @@ def create_fig(x, y, label_x, label_y, xerr=None, yerr=None, plot_args=None):
     ax.set_xlabel(label_x)
     ax.set_ylabel(label_y)
     ax.grid()
+    if plot_args is not None:
+        plot_args_default.update(plot_args)
+
     if callable(y):
-        if plot_args is not None:
-            plot_args_default.update(plot_args)
+        plot_args_default['color'] = plot_args_default['color'][0]
         ax.plot(x, y(x), **plot_args_default)
+    elif type(y) == list:
+        if yerr is None:
+            yerr = [None] * len(y)
+            _plot_args_default = plot_args_default.copy()
+        for i in range(len(y)):
+            _plot_args_default['color'] = plot_args_default['color'][i]
+            for key in plot_args.keys():
+                if type(plot_args_default[key]) == list:
+                    _plot_args_default[key] = plot_args_default[key][i]
+            ax.errorbar(x, y[i], xerr=xerr, yerr=yerr[i], **_plot_args_default)
     else:
-        if plot_args is not None:
-            plot_args_default.update(plot_args)
+        plot_args_default['color'] = plot_args_default['color'][0]
         ax.errorbar(x, y, xerr=xerr, yerr=yerr, **plot_args_default)
     return fig, ax
 
