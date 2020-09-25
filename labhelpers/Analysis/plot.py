@@ -89,7 +89,7 @@ def create_colormap(*args):
 
 
 # by Scott Zentoni
-def multiple_formatter(denominator=2, number=np.pi, latex='\pi'):
+def multiple_formatter(denominator=2, number=np.pi, counter_str='\pi', den_str=None):
     def gcd(a, b):
         while b:
             a, b = b, a % b
@@ -102,19 +102,26 @@ def multiple_formatter(denominator=2, number=np.pi, latex='\pi'):
         (num, den) = (int(num / com), int(den / com))
         if den == 1:
             if num == 0:
-                return r'$0$'
-            if num == 1:
-                return r'$%s$' % latex
+                result = r'$0$'
+            elif num == 1:
+                result = r'$%s$' % counter_str
             elif num == -1:
-                return r'$-%s$' % latex
+                result = r'$-%s$' % counter_str
             else:
-                return r'$%s%s$' % (num, latex)
+                result = r'$%s%s$' % (num, counter_str)
         else:
             if num == 1:
-                return r'$\frac{%s}{%s}$' % (latex, den)
+                result = r'$\frac{%s}{%s}$' % (counter_str, den)
             elif num == -1:
-                return r'$\frac{-%s}{%s}$' % (latex, den)
+                result = r'$\frac{-%s}{%s}$' % (counter_str, den)
             else:
-                return r'$\frac{%s%s}{%s}$' % (num, latex, den)
+                result = r'$\frac{%s%s}{%s}$' % (num, counter_str, den)
+        if den_str is None or num == 0:
+            return result
+        else:
+            if den == 1:
+                return result[:1] + r'\frac{' + result[1:-1] + r'}{%s}' % den_str + result[-1:]
+            else:
+                return result[:-2] + r' %s' % den_str + result[-2:]
 
     return _multiple_formatter
