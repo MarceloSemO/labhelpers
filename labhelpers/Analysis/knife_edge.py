@@ -12,7 +12,7 @@ from labhelpers.Analysis.plot import create_fig
 # evaluate data of knife edge measurement
 def evaluate(infile, pos_err_func, pow_err_func, outfile='', reverse=True):
     # acquire data
-    pos_mm, pow_W = file_to_arrs(infile, ['Position_mm', 'Power_W'])
+    _, (pos_mm, pow_W) = file_to_arrs(infile, ['Position_mm', 'Power_W'])
 
     pos_err_mm = pos_err_func(pos_mm)
     pow_err_W = pow_err_func(pow_W)

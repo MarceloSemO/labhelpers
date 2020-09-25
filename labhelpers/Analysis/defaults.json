@@ -6,7 +6,7 @@
       "ls": ""},
   "plot_args_line":
   {"color": ["#1f77b4", "indianred", "darkseagreen", "goldenrod", "mediumorchid"],
-    "ls": "--"
+    "ls": "-"
   },
   "plot_args_fit":
   {
