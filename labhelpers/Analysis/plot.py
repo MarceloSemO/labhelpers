@@ -47,7 +47,7 @@ def open_defaults():
 def create_fig(x, y, label_x, label_y, xerr=None, yerr=None, plot_args=None):
     configure_matplotlib()
     defaults = open_defaults()
-    if callable(y):
+    if callable(y) or (type(y) == list and all([callable(i) for i in y])):
         plot_args_default = defaults['plot_args_line']
     else:
         plot_args_default = defaults['plot_args_errorbar']
@@ -60,19 +60,24 @@ def create_fig(x, y, label_x, label_y, xerr=None, yerr=None, plot_args=None):
     if plot_args is not None:
         plot_args_default.update(plot_args)
 
-    if callable(y):
-        plot_args_default['color'] = plot_args_default['color'][0]
-        ax.plot(x, y(x), **plot_args_default)
-    elif type(y) == list:
+    # plot multiple graphs or data arrays
+    if type(y) == list:
         if yerr is None:
             yerr = [None] * len(y)
             _plot_args_default = plot_args_default.copy()
         for i in range(len(y)):
             _plot_args_default['color'] = plot_args_default['color'][i]
-            for key in plot_args.keys():
+            for key in plot_args_default.keys():
                 if type(plot_args_default[key]) == list:
                     _plot_args_default[key] = plot_args_default[key][i]
-            ax.errorbar(x, y[i], xerr=xerr, yerr=yerr[i], **_plot_args_default)
+            if callable(y[i]):
+                ax.plot(x, y[i](x), **_plot_args_default)
+            else:
+                ax.errorbar(x, y[i], xerr=xerr, yerr=yerr[i], **_plot_args_default)
+    # plot a single function or data array
+    elif callable(y):
+        plot_args_default['color'] = plot_args_default['color'][0]
+        ax.plot(x, y(x), **plot_args_default)
     else:
         plot_args_default['color'] = plot_args_default['color'][0]
         ax.errorbar(x, y, xerr=xerr, yerr=yerr, **plot_args_default)
