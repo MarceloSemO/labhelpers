@@ -35,7 +35,7 @@ def lin(x, m, n):
     return m * x + n
 
 
-# sinc function
+# sinc^2 function
 def sinc2(x, x0, a, b, y0):
     return a * (np.sinc(b / np.pi * (x-x0))) ** 2 + y0
 
@@ -46,7 +46,7 @@ def beam_radius(z_mm, w0_mm, z0_mm, wvl_um, m):
     return w0_mm * np.sqrt(1 + (z_mm - z0_mm) ** 2 / zr ** 2)
 
 
-def sinc2_root(x, x0, a, b, y0):
+def sin2_root(x, x0, a, b, y0):
     return a * (np.sin(b * np.sqrt(x-x0))) ** 2 + y0
 
 # calculate temperature for given resistance of NTC thermistor (B-parameter equation)
@@ -81,3 +81,7 @@ def b_param_eq_err(r, t_0, r_0, b, r_err=0, t_0_err=0, r_0_err=0, b_err=0, err_i
         raise ValueError("Parameter err_in must be either 'rel' or 'abs'.")
     # calculate temperature error
     return t * np.sqrt((t/t_0 * t_0_err) ** 2 + ((t-t_0)/t_0 * b_err) ** 2 + (t/b * r_0_err) ** 2 + (t/b * r_err) ** 2)
+
+
+def tanh2_root(x, a, b, x0, y0):
+    return (a-y0) * np.tanh(b * np.sqrt(x-x0)) + y0
