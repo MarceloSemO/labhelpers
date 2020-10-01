@@ -10,6 +10,7 @@ class Crystal:
 class PPLN(Crystal):
     def __init__(self, ureg):
         super().__init__(ureg)
+        # source: Gayer et al., Appl. Phys B, 91, 343-348 (2008)
         self.coeffs = {
             "e": {
                 "a1": 5.756,

@@ -12,45 +12,8 @@ Returns the refractive index of
 
 class RefractiveIndex:
 
-
-
     def __init__(self):
         self.ref_ind = {
-            "ppln_c_05mgo": {
-                # Appl. Phys B, 91, 343-348 (2008)
-                "Gayer, Sacks, Galun, Arie": {
-                    "n": {
-                        "e": {
-                            "a1": 5.756,
-                            "a2": 0.0983,
-                            "a3": 0.2020,
-                            "a4": 189.32,
-                            "a5": 12.52,
-                            "a6": 1.32e-2,
-                            "b1": 2.86e-6,
-                            "b2": 4.7e-8,
-                            "b3": 6.113e-8,
-                            "b4": 1.516e-4
-                        },
-                        "o": {
-                            "a1": 5.653,
-                            "a2": 0.1185,
-                            "a3": 0.2091,
-                            "a4": 89.61,
-                            "a5": 10.85,
-                            "a6": 1.97e-2,
-                            "b1": 7.941e-7,
-                            "b2": 3.134e-8,
-                            "b3": -4.641e-9,
-                            "b4": -2.188e-6
-                        },
-                        "function": lambda axis, wvl_um, temp_celsius, a1, a2, a3, a4, a5, a6, b1, b2, b3, b4:
-                        np.sqrt(a1
-                                + b1 * self.ref_ind['ppln_c_05mgo']['Gayer, Sacks, Galun, Arie']['n'][axis][temp_celsius]),
-                        "_function": 2,
-                    }
-                }
-            },
             "ktp": {
                 # J. Opt. Soc. Am. B, 6, 622-633 (1989)
                 "Bierlein, Vanherzeele": {
