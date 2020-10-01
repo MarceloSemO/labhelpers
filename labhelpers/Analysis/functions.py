@@ -16,7 +16,6 @@ def gauss_int(x, max_val, min_val, x0, w, reverse):
 # calculates 2-dimensional Gaussian
 def gauss2d(xy, x0, y0, sigma_x, sigma_y, amp, offset):
     (x, y) = xy
-    #x, y = np.meshgrid(x, y)
     return amp * np.exp(- 2 * ((x-x0) ** 2 / (sigma_x ** 2) + (y-y0) ** 2 / sigma_y ** 2)) + offset
 
 
@@ -35,6 +34,11 @@ def lin(x, m, n):
     return m * x + n
 
 
+# sinc without pi in denominator
+def sinc_pi(x):
+    return np.sinc(x / np.pi)
+
+
 # sinc^2 function
 def sinc2(x, x0, a, b, y0):
     return a * (np.sinc(b / np.pi * (x-x0))) ** 2 + y0
@@ -45,9 +49,6 @@ def beam_radius(z_mm, w0_mm, z0_mm, wvl_um, m):
     zr = np.pi * w0_mm ** 2 / (m ** 2 * wvl_um * 1e-3)
     return w0_mm * np.sqrt(1 + (z_mm - z0_mm) ** 2 / zr ** 2)
 
-
-def sin2_root(x, x0, a, b, y0):
-    return a * (np.sin(b * np.sqrt(x-x0))) ** 2 + y0
 
 # calculate temperature for given resistance of NTC thermistor (B-parameter equation)
 def b_param_eq(r, t_0, r_0, b, temp_unit='celsius'):
@@ -81,6 +82,10 @@ def b_param_eq_err(r, t_0, r_0, b, r_err=0, t_0_err=0, r_0_err=0, b_err=0, err_i
         raise ValueError("Parameter err_in must be either 'rel' or 'abs'.")
     # calculate temperature error
     return t * np.sqrt((t/t_0 * t_0_err) ** 2 + ((t-t_0)/t_0 * b_err) ** 2 + (t/b * r_0_err) ** 2 + (t/b * r_err) ** 2)
+
+
+def sin2_root(x, x0, a, b, y0):
+    return a * (np.sin(b * np.sqrt(x-x0))) ** 2 + y0
 
 
 def tanh2_root(x, a, b, x0, y0):
