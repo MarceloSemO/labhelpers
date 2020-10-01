@@ -37,6 +37,8 @@ class PPLN(Crystal):
                 "b4": -2.188e-6
             },
         }
+        self.wvl_range = (0.5, 4) * ureg.micrometer
+        self.temp_range = (ureg.Quantity(21, ureg.degC), ureg.Quantity(200, ureg.degC))
 
     @staticmethod
     def _get_temp_parameter(temp_celsius):
@@ -51,6 +53,10 @@ class PPLN(Crystal):
                        - c['a6'] * wvl_um ** 2)
 
     def get_refractive_index(self, axis, wavelength, temperature):
+        if wavelength < self.wvl_range[0] or wavelength > self.wvl_range[1]:
+            raise ValueError('Wavelength out of range.')
+        if temperature < self.temp_range[0] or temperature > self.temp_range[1]:
+            raise ValueError('Temperature out of range.')
         temp_celsius = temperature.to(self.ureg.degC).magnitude
         wvl_um = wavelength.to(self.ureg.micrometer).magnitude
         temp_parameter = self._get_temp_parameter(temp_celsius)
