@@ -1,15 +1,24 @@
 import numpy as np
+from labhelpers.Simulation.Crystal import *
 from labhelpers.Simulation.RefractiveIndex import RefractiveIndex as RefInd
 
 
 class QPM:
+    def __init__(self, ureg):
+        self.ureg = ureg
 
     # wvls and ref_ind are numpy arrays of length 3 [input1, input2, output]
-    def qpm_period(self, wvls_um, ref_ind):
-        addend = ref_ind / wvls_um
-        return 1/(addend[2] - addend[1] - addend[0])
+    def qpm_period(self, wvls, ref_inds):
+        addends = ref_inds / wvls
+        return (1/(addends[2] - addends[1] - addends[0])).to(self.ureg.micrometer)
 
-    def qpm_mismatch(self, material, source, axis, wvl_in_1_um, wvl_in_2_um, tmp_celsius, grating_period,
+    @staticmethod
+    def qpm_mismatch(wvls, ref_inds, grating_period):
+        k = 2 * np.pi * ref_inds / wvls
+        return k[2] - (k[0] + k[1] + 2 * np.pi / grating_period)
+
+
+    def qpm_mismatch_2(self, material, source, axis, wvl_in_1_um, wvl_in_2_um, tmp_celsius, grating_period,
                      interaction='sum', qpm_order=1):
         ref_ind = RefInd()
         if interaction == 'sum':
@@ -28,7 +37,7 @@ class QPM:
 
     def conv_eff(self, material, source, axis, wvl_in_1_um, wvl_in_2_um,
                  tmp_celsius, grating_period, interaction='sum', qpm_order=1):
-        dk_qpm = self.qpm_mismatch(material,
+        dk_qpm = self.qpm_mismatch_2(material,
                                    source,
                                    axis,
                                    wvl_in_1_um,
