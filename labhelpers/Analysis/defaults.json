@@ -2,7 +2,7 @@
   "plot_args_errorbar":
     {"color": ["#1f77b4", "indianred", "darkseagreen", "goldenrod", "mediumorchid"],
       "marker": ".",
-      "ms": "4",
+      "ms": "10",
       "ls": ""},
   "plot_args_line":
   {"color": ["#1f77b4", "indianred", "darkseagreen", "goldenrod", "mediumorchid"],
