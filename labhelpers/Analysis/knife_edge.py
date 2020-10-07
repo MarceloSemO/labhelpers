@@ -10,7 +10,7 @@ from labhelpers.Analysis.plot import create_fig
 
 
 # evaluate data of knife edge measurement
-def evaluate(infile, pos_err_func, pow_err_func, outfile='', reverse=True):
+def evaluate(infile, pos_err_func, pow_err_func, outfile='', reverse=True, vary_bounds=True, bounds=(None, None)):
     # acquire data
     _, (pos_mm, pow_W) = file_to_arrs(infile, ['Position_mm', 'Power_W'])
 
@@ -18,7 +18,7 @@ def evaluate(infile, pos_err_func, pow_err_func, outfile='', reverse=True):
     pow_err_W = pow_err_func(pow_W)
 
     # perform fit
-    result = _fit(pos_mm, pow_W, pow_err_W, reverse)
+    result = _fit(pos_mm, pow_W, pow_err_W, reverse, vary_bounds, bounds)
 
     # plot figure
     fig, ax = create_fig(pos_mm, pow_W, "Position (mm)", "Power (W)", xerr=pos_err_mm, yerr=pow_err_W)
@@ -70,18 +70,19 @@ def fit_z_profile(pos_mm, w_mm, w_err_mm, wvl_um, m=None):
     return result
 
 
-def _fit(pos_mm, pow_W, pow_err_W, reverse):
+def _fit(pos_mm, pow_W, pow_err_W, reverse, vary_bounds, bounds):
     # set up model
     gauss_int_model = Model(gauss_int)
-    params = gauss_int_model.make_params(max_val=max(pow_W) * 0.8,
+    params = gauss_int_model.make_params(max_val=max(pow_W),
                                          min_val=min(pow_W),
                                          x0=(max(pos_mm) + min(pos_mm)) / 2,
                                          w=(max(pos_mm) - min(pos_mm)) / 100,
                                          reverse=reverse)
     params['w'].set(min=0)
     params['reverse'].set(vary=False)
-    #params['max_val'].set(vary=False)
-    #params['min_val'].set(vary=False)
+    if vary_bounds is False:
+        params['min_val'].set(vary=False, value=(bounds[0] if bounds[0] is not None else 0))
+        params['max_val'].set(vary=False, value=(bounds[1] if bounds[1] is not None else max(pow_W)))
     # fit function to data
     result = gauss_int_model.fit(pow_W, params, x=pos_mm, weights=1 / pow_err_W, scale_covar=False)
     print(result.fit_report())
