@@ -89,4 +89,4 @@ def sin2_root(x, x0, a, b, y0):
 
 
 def tanh2_root(x, a, b, x0, y0):
-    return (a-y0) * np.tanh(b * np.sqrt(x-x0)) + y0
+    return a * np.tanh(b * np.sqrt(x-x0)) + y0

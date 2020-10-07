@@ -28,6 +28,10 @@ def _get_fw_at_nth_of_max(x: np.ndarray,
         raise ValueError(f"Array y must be one-dimensional, but has dimension {np.ndim(y)}.")
     elif np.size(x) != np.size(y):
         raise ValueError(f"Arrays x and y must be of equal size, but have lengths {np.size(x)} and {np.size(y)}.")
+    # sort arrays
+    ind = np.argsort(x)
+    x = np.take(x, ind)
+    y = np.take(y, ind)
     # find index of maximum value
     ix_max = np.argmax(y)
     if np.size(ix_max) > 1:
@@ -43,7 +47,7 @@ def _get_fw_at_nth_of_max(x: np.ndarray,
             break
     size = np.size(y)
     for i in range(ix_max, size):
-        if y[i] < ymax / n or i == size-1:
+        if y[i] < ymax / n or i == size - 1:
             ix_upper = i
             break
     if return_ix:
@@ -75,16 +79,40 @@ class Sinc2Model(Model):
         self.x = x
         self.y = y
         self._fit = super().fit
+        self.func = sinc2
 
     def fit(self, data_range: Tuple[int, int] = None, **kwargs):
         if data_range is None:
             x = self.x
             y = self.y
         else:
-            x = self.x[data_range[0]:data_range[1]+1]
-            y = self.y[data_range[0]:data_range[1]+1]
+            x = self.x[data_range[0]:data_range[1] + 1]
+            y = self.y[data_range[0]:data_range[1] + 1]
         self.params['x0'].set(min=np.min(x), max=np.max(x))
         return self._fit(y, self.params, x=x, **kwargs)
+
+
+# model including thermal heating due to second harmonic
+class SHGThermal(Model):
+    def __init__(self, eff):
+        super().__init__(self.shg)
+        self.eff = eff
+        self._fit = super().fit
+
+    def shg(self, x, a, b, x0, alpha):
+        _eff = sinc2(x, x0, a, b, 0)
+        return sinc2(x + alpha * _eff, x0, a, b, 0)
+
+    def fit(self, t, eff, **kwargs):
+        fwhm_factor = 2 * 1.37677  # 1.37677: positive solution to the equation (sin(x)/x)^2 = 1/2
+        init_guess = {'x0': t[np.argmax(eff)],
+                      'a': np.max(eff),
+                      'b': fwhm_factor / _get_fwhm(t, eff),
+                      'alpha': 0.001}
+        self.eff = eff
+        params = self.make_params(**init_guess)
+        return self._fit(eff, params, x=t, **kwargs)
+
 
 # model for SHG, high depletion, small phase mismatch
 class SHGModel(Model):
@@ -93,14 +121,23 @@ class SHGModel(Model):
         self._fit = super().fit
 
     @staticmethod
-    def shg(x, a, b, c, x0):
-        v = 1 - c*(x-x0)
-        return a * v ** 2 * ellipj(b/v, v ** 4)
+    def _shg(x, a, b, c, x0):
+        v = 1 - c * (x - x0)
+        return a * v ** 2 * ellipj(b / v, v ** 4) ** 2
+
+    @staticmethod
+    def shg(x, a, alpha, gamma, l, x0):
+        kappa = alpha * (x - x0) / (4 * gamma)
+        is_kappa_neg = kappa < 0
+        v = 1 / (kappa + (-1) ** is_kappa_neg * np.sqrt(1 + kappa ** 2))
+        return a * v ** 2 * ellipj(gamma * l / v, v ** 4)[0] ** 2
 
     def fit(self, x, y, **kwargs):
         init_guess = {'x0': x[np.argmax(y)],
-                      'a': np.max(y),
-                      'b': 3,
-                      'c': 0.2}
-        params = self.make_params(**self.init_guess)
+                      'alpha': -1.5,
+                      'gamma': 0.2,
+                      'l': 1}
+        init_guess['a'] = np.max(y) / np.tanh(init_guess['gamma'] * init_guess['l']) ** 2
+        params = self.make_params(**init_guess)
+        params['l'].set(vary=False)
         return self._fit(y, params, x=x, **kwargs)
