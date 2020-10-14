@@ -1,4 +1,3 @@
-import numpy as np
 from labhelpers.Simulation.Crystal import *
 from labhelpers.Simulation.RefractiveIndex import RefractiveIndex as RefInd
 
@@ -10,16 +9,16 @@ class QPM:
     # wvls and ref_ind are numpy arrays of length 3 [input1, input2, output]
     def qpm_period(self, wvls, ref_inds):
         addends = ref_inds / wvls
-        return (1/(addends[2] - addends[1] - addends[0])).to(self.ureg.micrometer)
+        return (1 / (addends[2] - addends[1] - addends[0])).to(self.ureg.micrometer)
 
     @staticmethod
     def qpm_mismatch(wvls, ref_inds, grating_period):
         k = 2 * np.pi * ref_inds / wvls
         return k[2] - (k[0] + k[1] + 2 * np.pi / grating_period)
 
-
-    def qpm_mismatch_2(self, material, source, axis, wvl_in_1_um, wvl_in_2_um, tmp_celsius, grating_period,
-                     interaction='sum', qpm_order=1):
+    @staticmethod
+    def qpm_mismatch_2(material, source, axis, wvl_in_1_um, wvl_in_2_um, tmp_celsius, grating_period,
+                       interaction='sum', qpm_order=1):
         ref_ind = RefInd()
         if interaction == 'sum':
             wvl_out_um = 1 / (1 / wvl_in_1_um + 1 / wvl_in_2_um)
@@ -38,12 +37,12 @@ class QPM:
     def conv_eff(self, material, source, axis, wvl_in_1_um, wvl_in_2_um,
                  tmp_celsius, grating_period, interaction='sum', qpm_order=1):
         dk_qpm = self.qpm_mismatch_2(material,
-                                   source,
-                                   axis,
-                                   wvl_in_1_um,
-                                   wvl_in_2_um,
-                                   tmp_celsius,
-                                   grating_period,
-                                   interaction=interaction,
-                                   qpm_order=qpm_order)
-        return (np.sin(dk_qpm * 5000/ 2)) ** 2 / (dk_qpm * 5000 / 2) ** 2
+                                     source,
+                                     axis,
+                                     wvl_in_1_um,
+                                     wvl_in_2_um,
+                                     tmp_celsius,
+                                     grating_period,
+                                     interaction=interaction,
+                                     qpm_order=qpm_order)
+        return (np.sin(dk_qpm * 5000 / 2)) ** 2 / (dk_qpm * 5000 / 2) ** 2

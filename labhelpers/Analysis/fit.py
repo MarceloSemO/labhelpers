@@ -35,7 +35,7 @@ def _get_fw_at_nth_of_max(x: np.ndarray,
     # find index of maximum value
     ix_max = np.argmax(y)
     if np.size(ix_max) > 1:
-        warnings.warn("Values has more than one maximum value. Only take first occurence.", RuntimeWarning)
+        warnings.warn("Values has more than one maximum value. Only take first occurrence.", RuntimeWarning)
         ix_max = ix_max[0]
     # find first values for which y < y_max / n
     ymax = y[ix_max]
@@ -99,7 +99,8 @@ class SHGThermal(Model):
         self.eff = eff
         self._fit = super().fit
 
-    def shg(self, x, a, b, x0, alpha):
+    @staticmethod
+    def shg(x, a, b, x0, alpha):
         _eff = sinc2(x, x0, a, b, 0)
         return sinc2(x + alpha * _eff, x0, a, b, 0)
 
@@ -126,11 +127,11 @@ class SHGModel(Model):
         return a * v ** 2 * ellipj(b / v, v ** 4) ** 2
 
     @staticmethod
-    def shg(x, a, alpha, gamma, l, x0):
+    def shg(x, a, alpha, gamma, length, x0):
         kappa = alpha * (x - x0) / (4 * gamma)
         is_kappa_neg = kappa < 0
         v = 1 / (kappa + (-1) ** is_kappa_neg * np.sqrt(1 + kappa ** 2))
-        return a * v ** 2 * ellipj(gamma * l / v, v ** 4)[0] ** 2
+        return a * v ** 2 * ellipj(gamma * length / v, v ** 4)[0] ** 2
 
     def fit(self, x, y, **kwargs):
         init_guess = {'x0': x[np.argmax(y)],
