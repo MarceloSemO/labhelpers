@@ -16,6 +16,11 @@
   "matplotlib_params":
   {
     "font.family": "sans-serif",
-    "font.sans-serif":["Helvetica"]
+    "font.sans-serif":["Helvetica"],
+    "axes.labelsize": "14",
+    "legend.fontsize": "12",
+	"xtick.labelsize": "14",
+	"ytick.labelsize": "14",
+	"figure.autolayout": "True"
   }
 }
